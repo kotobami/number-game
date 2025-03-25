@@ -1,145 +1,148 @@
-let playerNumber;
-let npcNumber;
-let history = [];
-let isPlayerTurn = true;
-let passedFirstTurn = false;
+// 戦績の記録（localStorageから取得）
+let records = JSON.parse(localStorage.getItem('records')) || { win: 0, lose: 0, draw: 0 };
+let userNumber, npcNumber, turn = 1, userAction = null;
 
-document.getElementById('start-button').addEventListener('click', startGame);
-document.getElementById('history-button').addEventListener('click', showHistory);
-document.getElementById('back-to-start').addEventListener('click', backToStart);
-
-function startGame() {
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('game-screen').style.display = 'block';
-    document.getElementById('message').textContent = '';
-
-    // 数字の割り当て（ゲーム終了まで固定）
-    if (!playerNumber || !npcNumber) {
-        const n = Math.floor(Math.random() * 9) + 1; // 1-9
-        const numbers = Math.random() < 0.5 ? [n, n + 1] : [n + 1, n];
-        playerNumber = numbers[0];
-        npcNumber = numbers[1];
-    }
-    document.getElementById('player-number').textContent = `あなたの数: ${playerNumber}`;
-
-    // 20秒カウントダウン
-    let countdown = 20;
-    document.getElementById('countdown').textContent = `カウントダウン: ${countdown}秒`;
-    const countdownInterval = setInterval(() => {
-        countdown--;
-        document.getElementById('countdown').textContent = `カウントダウン: ${countdown}秒`;
-        if (countdown <= 0) {
-            clearInterval(countdownInterval);
-            showChoice();
-        }
-    }, 1000);
+// 画面切り替え用関数
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
 }
 
-function showChoice() {
-    document.getElementById('countdown').style.display = 'none';
-    document.getElementById('choice').style.display = 'block';
-    let timeLeft = 5;
-    document.getElementById('timer').textContent = `残り時間: ${timeLeft}秒`;
+// 戦績と勝率の表示
+function showRecords() {
+    const recordsText = `勝ち: ${records.win}, 負け: ${records.lose}, 引き分け: ${records.draw}`;
+    const totalGames = records.win + records.lose + records.draw;
+    const winRate = totalGames > 0 ? (records.win / totalGames * 100).toFixed(2) : 0;
+    document.getElementById('records').textContent = recordsText;
+    document.getElementById('win-rate').textContent = `勝率: ${winRate}%`;
+    showScreen('records-screen');
+}
 
-    const timerInterval = setInterval(() => {
+// ゲームの初期化
+function initGame() {
+    // ランダムにnを決定 (1 <= n <= 8)
+    const n = Math.floor(Math.random() * 8) + 1;
+    // ユーザーとNPCの数をランダムに割り当て
+    userNumber = Math.random() < 0.5 ? n : n + 1;
+    npcNumber = userNumber === n ? n + 1 : n;
+    turn = 1;
+    document.getElementById('user-number').textContent = userNumber;
+    document.getElementById('turn-number').textContent = turn;
+    showScreen('game-screen');
+    startTurn();
+}
+
+// ターンの開始
+function startTurn() {
+    userAction = null;
+    document.getElementById('choices').style.display = 'none';
+    document.getElementById('declare-input').style.display = 'none';
+    startCountdown(10, 'countdown', () => {
+        document.getElementById('choices').style.display = 'block';
+        startCountdown(10, 'countdown', processTurn);
+    });
+}
+
+// カウントダウン関数
+function startCountdown(seconds, elementId, callback) {
+    let timeLeft = seconds;
+    const element = document.getElementById(elementId);
+    element.textContent = timeLeft;
+    const interval = setInterval(() => {
         timeLeft--;
-        document.getElementById('timer').textContent = `残り時間: ${timeLeft}秒`;
+        element.textContent = timeLeft;
         if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            passTurn();
+            clearInterval(interval);
+            callback();
         }
     }, 1000);
-
-    document.getElementById('declare-button').onclick = () => {
-        clearInterval(timerInterval);
-        document.getElementById('choice').style.display = 'none';
-        document.getElementById('input-number').style.display = 'block';
-    };
-
-    document.getElementById('pass-button').onclick = () => {
-        clearInterval(timerInterval);
-        passTurn();
-    };
-
-    document.getElementById('submit-guess').onclick = () => {
-        const guess = parseInt(document.getElementById('guess-input').value);
-        if (guess === npcNumber) {
-            endGame('勝利');
-        } else {
-            document.getElementById('input-number').style.display = 'none';
-            document.getElementById('message').textContent = `不正解です。NPCのターンへ。`;
-            isPlayerTurn = false;
-            setTimeout(npcTurn, 1000);
-        }
-    };
 }
 
-function passTurn() {
-    document.getElementById('choice').style.display = 'none';
-    document.getElementById('message').textContent = 'パスしました。NPCのターンへ。';
-    if (isPlayerTurn && history.length === 0) {
-        passedFirstTurn = true;
-    }
-    isPlayerTurn = false;
-    setTimeout(npcTurn, 1000);
-}
-
-function npcTurn() {
-    if (!isPlayerTurn) {
-        document.getElementById('message').textContent = 'NPCのターン...';
-        setTimeout(() => {
-            let npcGuess;
-            if (npcNumber === 1) {
-                npcGuess = 2;
-            } else if (npcNumber === 10) {
-                npcGuess = 9;
-            } else if (passedFirstTurn && npcNumber === 2) {
-                npcGuess = 3;
-            } else if (passedFirstTurn && npcNumber === 9) {
-                npcGuess = 8;
-            } else {
-                // ランダム推測（フォールバック）
-                npcGuess = Math.floor(Math.random() * 10) + 1;
-            }
-            document.getElementById('message').textContent = `NPCはあなたの数を${npcGuess}と推測しました。`;
-            if (npcGuess === playerNumber) {
-                endGame('敗北');
-            } else {
-                document.getElementById('message').textContent += ' 不正解です。あなたのターンへ。';
-                isPlayerTurn = true;
-                setTimeout(() => {
-                    document.getElementById('choice').style.display = 'block';
-                    showChoice();
-                }, 1000);
-            }
-        }, 1000);
+// ターン処理
+function processTurn() {
+    if (!userAction) userAction = 'pass'; // ユーザーが選択しなかった場合はパス
+    const npcAction = getNpcAction();
+    const result = determineWinner(userAction, npcAction);
+    
+    if (result === 'continue') {
+        turn++;
+        document.getElementById('turn-number').textContent = turn;
+        startTurn();
+    } else {
+        showResult(result);
+        updateRecords(result);
     }
 }
 
-function endGame(result) {
-    document.getElementById('game-screen').style.display = 'none';
-    document.getElementById('start-screen').style.display = 'block';
-    history.push({
-        result: result,
-        playerNumber: playerNumber,
-        npcNumber: npcNumber
-    });
-    alert(`ゲーム終了: ${result}`);
+// NPCの行動を取得
+function getNpcAction() {
+    if (turn === 1) {
+        if (npcNumber === 1) return { action: 'declare', guess: 2 };
+        if (npcNumber === 10) return { action: 'declare', guess: 9 };
+    } else if (turn === 2) {
+        if (npcNumber === 2) return { action: 'declare', guess: 3 };
+        if (npcNumber === 9) return { action: 'declare', guess: 8 };
+    } else if (turn === 3) {
+        if (npcNumber === 3) return { action: 'declare', guess: 4 };
+        if (npcNumber === 8) return { action: 'declare', guess: 7 };
+    } else if (turn === 4) {
+        if (npcNumber === 4) return { action: 'declare', guess: 5 };
+        if (npcNumber === 7) return { action: 'declare', guess: 6 };
+    } else if (turn === 5) {
+        if (npcNumber === 5) return { action: 'declare', guess: 6 };
+        if (npcNumber === 6) return { action: 'declare', guess: 5 };
+    } else if (turn >= 6) {
+        if (npcNumber <= 5) return { action: 'declare', guess: npcNumber + 1 };
+        if (npcNumber >= 6) return { action: 'declare', guess: npcNumber - 1 };
+    }
+    return { action: 'pass' };
 }
 
-function showHistory() {
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('history-screen').style.display = 'block';
-    const historyList = document.getElementById('history-list');
-    historyList.innerHTML = '';
-    history.forEach((game, index) => {
-        const p = document.createElement('p');
-        p.textContent = `ゲーム${index + 1}: ${game.result} - あなた: ${game.playerNumber}, NPC: ${game.npcNumber}`;
-        historyList.appendChild(p);
-    });
+// 勝敗を判定
+function determineWinner(userAction, npcAction) {
+    if (userAction === 'pass' && npcAction.action === 'pass') return 'continue';
+    
+    let userGuess = userAction === 'declare' ? parseInt(document.getElementById('guess').value) : null;
+    let npcGuess = npcAction.action === 'declare' ? npcAction.guess : null;
+
+    if (userGuess === npcNumber && npcGuess === userNumber) return 'draw';
+    if (userGuess === npcNumber) return 'win';
+    if (npcGuess === userNumber) return 'lose';
+    if (userGuess && npcGuess) return 'draw';
+    if (userGuess && userGuess !== npcNumber) return 'lose';
+    if (npcGuess && npcGuess !== userNumber) return 'draw';
+    return 'continue';
 }
 
-function backToStart() {
-    document.getElementById('history-screen').style.display = 'none';
-    document.getElementById('start-screen').style.display = 'block';
+// 結果を表示
+function showResult(result) {
+    const resultText = result === 'win' ? 'Win' : result === 'lose' ? 'Lose' : 'Draw';
+    document.getElementById('result').textContent = resultText;
+    showScreen('result-screen');
 }
+
+// 戦績を更新
+function updateRecords(result) {
+    if (result === 'win') records.win++;
+    else if (result === 'lose') records.lose++;
+    else if (result === 'draw') records.draw++;
+    localStorage.setItem('records', JSON.stringify(records));
+}
+
+// イベントリスナー
+document.getElementById('start-game').addEventListener('click', initGame);
+document.getElementById('show-records').addEventListener('click', showRecords);
+document.getElementById('back-to-start').addEventListener('click', () => showScreen('start-screen'));
+document.getElementById('back-to-start-from-result').addEventListener('click', () => showScreen('start-screen'));
+document.getElementById('declare').addEventListener('click', () => {
+    document.getElementById('choices').style.display = 'none';
+    document.getElementById('declare-input').style.display = 'block';
+});
+document.getElementById('pass').addEventListener('click', () => {
+    userAction = 'pass';
+    processTurn();
+});
+document.getElementById('submit-guess').addEventListener('click', () => {
+    userAction = 'declare';
+    processTurn();
+});

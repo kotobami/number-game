@@ -3,44 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number Game</title>
+    <title>数当てゲーム</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
         }
-        #game {
-            margin: 20px;
+        #start-screen, #game-screen, #history-screen {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            max-width: 400px;
         }
-        #history {
-            margin: 20px;
-            text-align: left;
-            display: none; /* 初期状態では非表示 */
+        #countdown, #timer {
+            font-size: 24px;
+            font-weight: bold;
         }
         button {
+            margin: 10px;
             padding: 10px 20px;
-            margin: 5px;
             font-size: 16px;
+        }
+        #history-list {
+            text-align: left;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Number Game</h1>
-    <div id="game">
-        <p id="player-number">あなたの数字: 未設定</p>
-        <p id="turn">ターン: 未開始</p>
-        <div id="choices">
-            <button id="guess-btn">相手の数字を宣言する</button>
-            <button id="pass-btn">パス</button>
+    <div id="start-screen">
+        <h1>数当てゲーム</h1>
+        <button id="start-button">ゲームスタート</button>
+        <button id="history-button">戦歴</button>
+    </div>
+
+    <div id="game-screen" style="display: none;">
+        <h2>ゲーム中</h2>
+        <p id="player-number"></p>
+        <p id="countdown"></p>
+        <div id="choice" style="display: none;">
+            <p>5秒以内に選択してください：</p>
+            <button id="declare-button">相手の数を宣言する</button>
+            <button id="pass-button">パス</button>
+            <p id="timer"></p>
+        </div>
+        <div id="input-number" style="display: none;">
+            <p>相手の数を入力してください（1-10）：</p>
+            <input type="number" id="guess-input" min="1" max="10">
+            <button id="submit-guess">決定</button>
         </div>
         <p id="message"></p>
     </div>
-    <button id="history-btn">戦歴</button>
-    <div id="history">
+
+    <div id="history-screen" style="display: none;">
         <h2>戦歴</h2>
-        <ul id="history-list"></ul>
+        <div id="history-list"></div>
+        <button id="back-to-start">戻る</button>
     </div>
+
     <script src="game.js"></script>
 </body>
 </html>

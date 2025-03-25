@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        input {
+            padding: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- スタート画面 -->
+    <div id="start-screen">
+        <h1>Number Guessing Game</h1>
+        <button id="start-button">スタート</button>
+    </div>
+
+    <!-- ゲーム画面 -->
+    <div id="game-screen" class="hidden">
+        <p>あなたの数: <span id="your-number"></span></p>
+        <p>カウントダウン: <span id="countdown"></span>秒</p>
+        <div id="choice" class="hidden">
+            <button id="declare-button">相手の数を宣言する</button>
+            <button id="pass-button">パス</button>
+            <p>残り時間: <span id="choice-time"></span>秒</p>
+        </div>
+        <div id="declare-input" class="hidden">
+            <p>相手の数を入力してください（1〜10）:</p>
+            <input type="number" id="guess-input" min="1" max="10">
+            <button id="submit-guess">確定</button>
+        </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="result-screen" class="hidden">
+        <h2 id="result-message"></h2>
+        <button id="back-to-start">スタート画面に戻る</button>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

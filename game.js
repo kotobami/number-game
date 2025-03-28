@@ -82,10 +82,12 @@ function endTurn(userGuess = null) {
     } else if (npcGuess === userNumber && userGuess !== npcNumber) {
         showResult('lose');
         results.lose++;
-    } else if ((userGuess === npcNumber && npcGuess === userNumber) || (userGuess !== npcNumber && npcGuess !== userNumber)) {
+    } else if ((userGuess === npcNumber && npcGuess === userNumber) || 
+               (userGuess !== null && userGuess !== npcNumber && npcGuess !== null && npcGuess !== userNumber)) {
         showResult('draw');
         results.draw++;
     } else {
+        // 両者がパス、または片方がパスで片方が宣言したが当てられなかった場合
         turn++;
         startTimer();
     }

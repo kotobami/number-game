@@ -2,45 +2,44 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>数字当てゲーム</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        button { padding: 10px 20px; margin: 5px; }
-        #gameScreen, #resultScreen { display: none; }
-        #history { margin-top: 20px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- スタート画面 -->
-    <div id="startScreen">
-        <h1>数字当てゲーム</h1>
-        <button onclick="startGame()">ゲーム開始</button>
-        <button onclick="showResults()">戦績と勝率</button>
+    <div id="start-screen" class="screen">
+        <button id="start-button">ゲーム開始</button>
+        <button id="record-button">戦績</button>
     </div>
 
-    <!-- ゲーム画面 -->
-    <div id="gameScreen">
-        <h2>ゲーム中</h2>
-        <p>あなたの数字: <span id="userNumber"></span></p>
-        <p>残り時間: <span id="timer">20</span>秒</p>
-        <div>
-            <button onclick="declareNumber()">相手の数を宣言する</button>
-            <button onclick="pass()">パス</button>
+    <!-- 対戦画面 -->
+    <div id="game-screen" class="screen" style="display: none;">
+        <h2 id="round-display">第1回戦</h2>
+        <p>あなたの数: <span id="user-number"></span></p>
+        <p>残り時間: <span id="countdown">20</span>秒</p>
+        <button id="declare-button">宣言する</button>
+        <button id="pass-button">パス</button>
+        <div id="declare-form" style="display: none;">
+            <input type="number" id="declare-input" min="1" max="10" placeholder="1-10">
+            <button id="submit-declare">決定</button>
         </div>
-        <div id="declareInput" style="display: none; margin-top: 10px;">
-            <input type="number" id="userGuess" min="1" max="10" placeholder="1~10">
-            <button onclick="submitGuess()">決定</button>
-        </div>
-        <div id="history">
-            <h3>選択履歴</h3>
-            <ul id="historyList"></ul>
-        </div>
+        <p id="declare-message" style="display: none;">カウントダウン終了後に宣言します</p>
     </div>
 
-    <!-- 結果画面 -->
-    <div id="resultScreen">
-        <h2 id="resultText"></h2>
-        <button onclick="backToStart()">続ける</button>
+    <!-- 戦績画面 -->
+    <div id="record-screen" class="screen" style="display: none;">
+        <h2>戦績</h2>
+        <p>勝ち: <span id="win-count">0</span> 負け: <span id="lose-count">0</span> 引き分け: <span id="draw-count">0</span></p>
+        <p>勝率: <span id="win-rate">0%</span></p>
+        <ul id="game-history"></ul>
+        <button id="close-record">閉じる</button>
+    </div>
+
+    <!-- リザルト画面 -->
+    <div id="result-screen" class="screen" style="display: none;">
+        <h2 id="result-message"></h2>
+        <button id="back-to-start">スタート画面に戻る</button>
     </div>
 
     <script src="game.js"></script>

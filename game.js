@@ -40,8 +40,7 @@ function startGame() {
     showScreen('game-screen');
     gameState.round = 1;
     generateNumbers();
-    updateGameScreen();
-    startCountdown();
+    resetRound();
 }
 
 // 数値の生成
@@ -50,6 +49,14 @@ function generateNumbers() {
     const isUserLarger = Math.random() < 0.5;
     gameState.userNumber = isUserLarger ? n + 1 : n;
     gameState.npcNumber = isUserLarger ? n : n + 1;
+}
+
+// ラウンドのリセット
+function resetRound() {
+    gameState.userDeclaration = null;
+    gameState.npcDeclaration = null;
+    updateGameScreen();
+    startCountdown();
 }
 
 // ゲーム画面の更新
@@ -65,11 +72,13 @@ function updateGameScreen() {
 function startCountdown() {
     let timeLeft = 20;
     document.getElementById('countdown').textContent = timeLeft;
+    if (gameState.timer) clearInterval(gameState.timer);
     gameState.timer = setInterval(() => {
         timeLeft--;
         document.getElementById('countdown').textContent = timeLeft;
         if (timeLeft <= 0) {
             clearInterval(gameState.timer);
+            console.log('Countdown finished');
             processRound();
         }
     }, 1000);
@@ -92,7 +101,7 @@ function submitDeclaration() {
 function processRound() {
     gameState.npcDeclaration = getNpcDeclaration();
     const result = determineWinner();
-
+    console.log('determineWinner result:', result);
     if (result !== 'continue') {
         gameState.records.push({
             userNumber: gameState.userNumber,
@@ -105,6 +114,7 @@ function processRound() {
         localStorage.setItem('records', JSON.stringify(gameState.records));
         showResult(result);
     }
+    console.log('processRound finished');
 }
 
 // NPCの宣言ロジック
@@ -131,10 +141,7 @@ function determineWinner() {
 
     if (userDeclare === 'pass' && npcDeclare === 'pass') {
         gameState.round++;
-        gameState.userDeclaration = null;
-        gameState.npcDeclaration = null;
-        updateGameScreen();
-        startCountdown();
+        resetRound();
         return 'continue';
     }
 

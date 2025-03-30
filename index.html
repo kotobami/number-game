@@ -3,43 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number Guessing Game</title>
+    <title>数当てゲーム</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- スタート画面 -->
     <div id="start-screen" class="screen">
-        <button id="start-button">ゲーム開始</button>
-        <button id="record-button">戦績</button>
+        <button id="start-game">ゲーム開始</button>
+        <button id="show-records">戦績</button>
     </div>
 
     <!-- 対戦画面 -->
     <div id="game-screen" class="screen" style="display: none;">
-        <h2 id="round-display">第1回戦</h2>
-        <p>あなたの数: <span id="user-number"></span></p>
-        <p>残り時間: <span id="countdown">20</span>秒</p>
-        <button id="declare-button">宣言する</button>
-        <button id="pass-button">パス</button>
+        <div id="countdown">20</div>
+        <div id="round">第1回戦</div>
+        <div id="my-number">あなたの数: <span id="user-number"></span></div>
+        <button id="declare">宣言する</button>
+        <button id="pass">パス</button>
         <div id="declare-form" style="display: none;">
-            <input type="number" id="declare-input" min="1" max="10" placeholder="1-10">
+            <input type="number" id="declare-number" min="1" max="10" placeholder="1~10">
             <button id="submit-declare">決定</button>
         </div>
-        <p id="declare-message" style="display: none;">カウントダウン終了後に宣言します</p>
-    </div>
-
-    <!-- 戦績画面 -->
-    <div id="record-screen" class="screen" style="display: none;">
-        <h2>戦績</h2>
-        <p>勝ち: <span id="win-count">0</span> 負け: <span id="lose-count">0</span> 引き分け: <span id="draw-count">0</span></p>
-        <p>勝率: <span id="win-rate">0%</span></p>
-        <ul id="game-history"></ul>
-        <button id="close-record">閉じる</button>
+        <div id="declare-message" style="display: none;"></div>
     </div>
 
     <!-- リザルト画面 -->
     <div id="result-screen" class="screen" style="display: none;">
-        <h2 id="result-message"></h2>
+        <div id="result-message"></div>
         <button id="back-to-start">スタート画面に戻る</button>
+    </div>
+
+    <!-- 戦績モーダル -->
+    <div id="records-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>戦績</h2>
+            <div id="records-summary"></div>
+            <div id="records-list"></div>
+        </div>
     </div>
 
     <script src="game.js"></script>
